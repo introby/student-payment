@@ -1,7 +1,6 @@
 package by.intro.student.business;
 
-import by.intro.student.dao.StreetRepository;
-import by.intro.student.dao.StudentOrderRepository;
+import by.intro.student.dao.*;
 import by.intro.student.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,17 +18,33 @@ public class StudentOrderService {
     private static final Logger LOG = LoggerFactory.getLogger(StudentOrderService.class);
 
     @Autowired
-    public StudentOrderRepository dao;
+    private StudentOrderRepository dao;
     @Autowired
-    public StreetRepository daoStreet;
+    private StreetRepository daoStreet;
+    @Autowired
+    private StudentOrderStatusRepository daoStatus;
+    @Autowired
+    private PassportOfficeRepository daoPassport;
+    @Autowired
+    private RegisterOfficeRepository daoRegister;
+    @Autowired
+    private UniversityRepository daoUniversity;
 
     @Transactional
     public void testSave() {
         StudentOrder so = new StudentOrder();
+        so.setStudentOrderDate(LocalDateTime.now());
+        so.setStatus(daoStatus.getById(1L));
+
         Adult wife = buildPerson(true);
         Adult husband = buildPerson(false);
         so.setWife(wife);
         so.setHusband(husband);
+
+        so.setCertificateNumber("CERTIFICATE");
+        so.setRegisterOffice(daoRegister.getById(1L));
+        so.setMarriageDate(LocalDate.now());
+
         dao.save(so);
     }
 
@@ -55,14 +71,20 @@ public class StudentOrderService {
             a.setPatronymic("Васильевна");
             a.setPassportSeries("WIFE_S");
             a.setPassportNumber("WIFE_N");
+            a.setPassportOffice(daoPassport.getById(1L));
             a.setPassportIssueDate(LocalDate.now());
+            a.setStudentNumber("12345");
+            a.setUniversity(daoUniversity.getById(1L));
         } else {
             a.setSurName("Рюрик");
             a.setGivenName("Иван");
             a.setPatronymic("Васильевич");
             a.setPassportSeries("HUSBAND_S");
             a.setPassportNumber("HUSBAND_N");
+            a.setPassportOffice(daoPassport.getById(1L));
             a.setPassportIssueDate(LocalDate.now());
+            a.setStudentNumber("67890");
+            a.setUniversity(daoUniversity.getById(1L));
         }
 
         return a;
